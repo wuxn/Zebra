@@ -137,8 +137,9 @@
 		}
 		function play () {
 			// body...
-			timer=setInterval(function(){
+			timer=setTimeout(function(){
 				next.onclick();
+				play();
 			},2000);
 
 		}
