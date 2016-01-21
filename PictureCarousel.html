@@ -1,0 +1,217 @@
+<!DOCTYPE>
+<html version="g42dymwpi--nx">
+<head>
+	<meta charset="utf-8">
+	<title>图片轮播</title>
+	<style type="text/css">
+	*{margin: 0;padding: 0;text-decoration: none;}
+	body{padding: 20px;}
+	.container{
+		width: 600px;
+		height:400px;
+		margin: 0 auto;
+		border:3px solid #333;
+		overflow:hidden;
+		position:relative;  
+        top:23%;  
+	}
+	.list{
+		width: 4200px;
+		height: 400px;
+		position: absolute;
+		/*基于父元素container relative*/
+		z-index: 1;
+		/*还要显示按钮和箭头，要使按钮和箭头覆盖在列表图片上*/
+	}
+	.list img{
+		float:left;
+		width: 600px;
+	}
+	.buttons{
+		width: 100px;
+		height: 10px;
+		position: absolute;
+		bottom: 20px;
+		left:250px;
+		z-index: 2;		
+	}
+	.buttons span{
+		width: 10px;
+		height: 10px;		
+		float: left;
+		margin-right: 5px;
+		border:1px solid #fff;
+		border-radius:50%;
+		background: #333;
+		cursor: pointer;
+
+	}
+	.buttons .on{
+		background: orangered;
+	}
+	.arrow{
+		width: 40px;
+		height: 40px;
+		line-height: 40px;
+		text-align: center;
+		position: absolute;
+		top:180px;
+		font-size: 36px;
+		font-weight:bold;
+		background: rgba(0,0,0,3);
+		color:#fff;
+		display: none;
+		cursor: pointer;
+		z-index: 2;
+	}
+	.arrow:hover{
+		background-color:rgba(0,0,0,.7);
+	}
+	.container:hover .arrow{
+		display: block;
+	}
+	#prev{
+		left:20px;
+	}
+	#next{
+		right:20px;
+	}
+	</style>
+	<script type="text/javascript">
+	window.onload=function(){
+		// 当页面加载完毕之后才开始获取里面的元素，这样才能通过id等获取元素，如果不加，节点没有被渲染出来，是获取不到的。
+		var container=document.getElementById("container");
+		var list=document.getElementById("list");
+		var buttons=document.getElementById("buttons").getElementsByTagName("span");
+		var prev=document.getElementById("prev");
+		var next=document.getElementById("next");
+		// 按钮标记
+		var index=1;
+		// 当切换时不应该再切换，切换结束再切换,运行时为true
+		var animated=false;
+		// 定时器
+		var timer;
+
+        function showButton(){
+        	for(var i=0;i<buttons.length;i++){
+        		if(buttons[i].className=="on"){
+        			buttons[i].className="";
+        			break;
+        		}
+        	}
+        	buttons[index-1].className="on";
+        }
+		// 添加事件绑定
+		// 当小于-3000变回-600，当大于-600变回-3000
+		function animate (offset) {
+			// body...
+			animated=true;
+			var newLeft=parseInt(list.style.left)+offset;
+			// 位移总时间
+			var time=300;
+			// 位移间隔时间
+			var interval=10;
+			// 每一次的位移量
+			var speed=offset/(time/interval);
+
+			function go () {
+				// body...
+				// 向左移动
+				if ( (speed > 0 && parseInt(list.style.left) < newLeft) || (speed < 0 && parseInt(list.style.left) > newLeft)) {
+					list.style.left=parseInt(list.style.left)+speed+'px';
+					// 递归
+					setTimeout(go,interval);
+				}else{
+					animated=false;
+					list.style.left=newLeft+'px';
+					if(newLeft>-600){
+						list.style.left=-3000+'px';
+					}
+					if(newLeft<-3000){
+						list.style.left=-600+'px';
+					}
+				}
+			}
+			// debugger;
+			go();
+		}
+		function play () {
+			// body...
+			timer=setInterval(function(){
+				next.onclick();
+			},2000);
+
+		}
+		function stop () {
+			// body...
+			clearTimeout(timer);
+		}
+
+		next.onclick=function(){
+			if(index==5){
+				index=1;
+			}else{
+				index += 1;
+			}		
+			showButton();
+			animate(-600);
+		};
+		prev.onclick=function(){
+			if(index==1){
+				index=5
+			}else{
+				index -=1;
+			}			
+			showButton();
+			animate(600);
+		};
+		for (var i = 0; i < buttons.length; i++) {
+			buttons[i].onclick=function(){
+				if(this.className=='on'){
+					// 当class当前为on时再点击时，就退出函数
+					return;		
+				}
+				var myIndex=parseInt(this.getAttribute('index'));
+				// index是自定义的属性，getAttribute是DOM二级函数
+				var offset=-600*(myIndex-index);
+				// index当前的
+				animate(offset);
+				index=myIndex;
+				showButton();
+			}
+		};
+		
+		container.onmouseout=play;
+		container.onmouseover=stop;
+
+		play();
+
+	}
+	</script>
+</head>
+<body>
+	<div class="container" id="container">
+		<div class="list" id="list" style="left:-600px;">
+			<img src="5.png" alt="1">
+			<!-- 第五张图的附属图 为了无限循环 无缝隙-->
+			<img src="images/1.png" alt="1">
+			<img src="images/2.png" alt="2">
+			<img src="images/3.png" alt="3">
+			<img src="images/4.png" alt="4">
+			<img src="images/5.png" alt="5">
+			<img src="images/1.png" alt="5">
+			<!-- 第一张图的附属图 -->
+		</div>
+	    <div class="buttons" id="buttons">
+	    	<!-- index为自定义属性 -->
+	    	<span index="1" class="on"></span>
+	    	<span index="2"></span>
+	    	<span index="3"></span>
+	    	<span index="4"></span>
+	    	<span index="5"></span>
+	    </div>
+	    <a href="javascript:;" id="prev" class="arrow">&lt;</a>
+	    <a href="javascript:;" id="next" class="arrow">&gt;</a>
+	</div>
+</body>
+</html>
